@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modular Media Streaming Suite - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+            min-height: 100vh;
+            color: #e0e6ed;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffffff;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ff6b9d, #c44569, #f8b500, #ff6b9d);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.8;
+            color: #a0aec0;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: rgba(30, 30, 50, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.5), transparent);
+        }
+
+        .panel:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 107, 157, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 107, 157, 0.3);
+        }
+
+        .panel h2 {
+            color: #ffffff;
+            margin-bottom: 25px;
+            font-size: 1.6rem;
+            border-bottom: 2px solid transparent;
+            background: linear-gradient(90deg, #ff6b9d, #c44569) bottom;
+            background-size: 100% 2px;
+            background-repeat: no-repeat;
+            padding-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(255, 107, 157, 0.3);
+        }
+
+        .file-upload-area {
+            border: 2px dashed rgba(255, 107, 157, 0.5);
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            background: rgba(255, 107, 157, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, 0.1);
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.2);
+        }
+
+        .file-upload-area:hover::before {
+            left: 100%;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #f8b500;
+            background: rgba(248, 181, 0, 0.1);
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(248, 181, 0, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #ff6b9d;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.5));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #f8b500 100%);
+            color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 8px;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+            background: linear-gradient(135deg, #ff8bb3 0%, #d4567a 50%, #ffc947 100%);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #00d4aa 0%, #00a085 100%);
+            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #00e6c3 0%, #00b894 100%);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757 0%, #c44569 100%);
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff6b7a 0%, #d4567a 100%);
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+        }
+
+        .playlist {
+            background: rgba(20, 20, 40, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            min-height: 250px;
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .playlist-item {
+            background: rgba(40, 40, 60, 0.8);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 107, 157, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .playlist-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, #ff6b9d, #c44569);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .playlist-item:hover {
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.2);
+            transform: translateX(8px) scale(1.02);
+            border-color: rgba(255, 107, 157, 0.5);
+            background: rgba(50, 50, 70, 0.9);
+        }
+
+        .playlist-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 157, 0.5));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .control-group {
+            background: rgba(30, 30, 50, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #ff6b9d;
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .control-group:hover {
+            border-left-color: #f8b500;
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .control-group h3 {
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 0 2px 10px rgba(255, 107, 157, 0.3);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-item:hover {
+            background: rgba(255, 107, 157, 0.1);
+            transform: translateX(5px);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #ff6b9d;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            color: #e0e6ed;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .checkbox-item:hover label {
+            color: #ff6b9d;
+        }
+
+        .output-area {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #e0e6ed;
+            border-radius: 15px;
+            padding: 25px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            min-height: 350px;
+            max-height: 450px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 25px;
+            border: 1px solid rgba(255, 107, 157, 0.3);
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(255, 107, 157, 0.1);
+            position: relative;
+        }
+
+        .output-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.5), transparent);
+        }
+
+        .pattern-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .pattern-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .adapter-badge { 
+            background: linear-gradient(135deg, #ff6b9d, #c44569); 
+            color: #ffffff; 
+            box-shadow: 0 2px 8px rgba(255, 107, 157, 0.4);
+        }
+        .decorator-badge { 
+            background: linear-gradient(135deg, #f8b500, #ff8c00); 
+            color: #ffffff; 
+            box-shadow: 0 2px 8px rgba(248, 181, 0, 0.4);
+        }
+        .composite-badge { 
+            background: linear-gradient(135deg, #00d4aa, #00a085); 
+            color: #ffffff; 
+            box-shadow: 0 2px 8px rgba(0, 212, 170, 0.4);
+        }
+        .bridge-badge { 
+            background: linear-gradient(135deg, #9c88ff, #6c5ce7); 
+            color: #ffffff; 
+            box-shadow: 0 2px 8px rgba(156, 136, 255, 0.4);
+        }
+        .proxy-badge { 
+            background: linear-gradient(135deg, #ff4757, #c44569); 
+            color: #ffffff; 
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+        }
+
+        .demo-scenarios {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .scenario-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .scenario-btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #f8b500 100%);
+            color: #ffffff;
+            border: none;
+            padding: 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+        }
+
+        .scenario-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .scenario-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.4);
+            background: linear-gradient(135deg, #ff8bb3 0%, #d4567a 50%, #ffc947 100%);
+        }
+
+        .scenario-btn:hover::before {
+            left: 100%;
+        }
+
+        .scenario-btn small {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(40, 40, 60, 0.8);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b9d, #c44569, #f8b500);
+            background-size: 200% 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+            animation: progressGlow 2s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+
+        @keyframes progressGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Modular Media Streaming Suite</h1>
+            <p>Interactive Demo of Structural Design Patterns</p>
+        </div>
+
+        <div class="main-content">
+            <!-- File Upload Panel -->
+            <div class="panel">
+                <h2>📁 File Management <span class="pattern-badge adapter-badge">ADAPTER</span></h2>
+                
+                <div class="file-upload-area" id="uploadArea">
+                    <div class="upload-icon">📤</div>
+                    <h3>Drop files here or click to upload</h3>
+                    <p>Supports: MP4, MP3, AVI, MOV, WAV</p>
+                    <input type="file" id="fileInput" class="file-input" multiple accept=".mp4,.mp3,.avi,.mov,.wav">
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="addHLSStream()">🌐 Add HLS Stream</button>
+                    <button class="btn" onclick="addRemoteAPI()">🔗 Add Remote API</button>
+                    <button class="btn btn-secondary" onclick="downloadPlaylist()">💾 Download Playlist</button>
+                    <button class="btn" onclick="loadSampleVideo()" style="background: linear-gradient(135deg, #9c88ff, #6c5ce7);">🎬 Load Sample Video</button>
+                </div>
+
+                <div class="playlist" id="playlist">
+                    <h3>📋 Current Playlist</h3>
+                    <div id="playlistItems"></div>
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="panel">
+                <h2>🎛️ Media Controls <span class="pattern-badge decorator-badge">DECORATOR</span></h2>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <h3>🎨 Feature Decorators</h3>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="subtitles" onchange="toggleDecorator('subtitles')">
+                                <label for="subtitles">📝 Subtitles</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="equalizer" onchange="toggleDecorator('equalizer')">
+                                <label for="equalizer">🎛️ Audio Equalizer</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="watermark" onchange="toggleDecorator('watermark')">
+                                <label for="watermark">🏷️ Watermark</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <h3>🌉 Rendering Engine <span class="pattern-badge bridge-badge">BRIDGE</span></h3>
+                        <button class="btn" onclick="setRenderer('hardware')">🖥️ Hardware</button>
+                        <button class="btn" onclick="setRenderer('software')">💻 Software</button>
+                        <button class="btn btn-secondary" onclick="switchRenderer()">🔄 Switch Runtime</button>
+                    </div>
+
+                    <div class="control-group">
+                        <h3>🔄 Caching System <span class="pattern-badge proxy-badge">PROXY</span></h3>
+                        <button class="btn" onclick="enableCaching()">✅ Enable Cache</button>
+                        <button class="btn btn-danger" onclick="disableCaching()">❌ Disable Cache</button>
+                        <button class="btn" onclick="demoCaching()">📡 Cache Demo</button>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="playPlaylist()">▶️ Play Playlist</button>
+                    <button class="btn btn-secondary" onclick="pausePlayback()">⏸️ Pause</button>
+                    <button class="btn btn-danger" onclick="stopPlayback()">⏹️ Stop</button>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Player Section -->
+        <div class="panel" style="grid-column: 1 / -1; margin-top: 20px;">
+            <h2>🎬 Video Player <span class="pattern-badge adapter-badge">REAL PLAYBACK</span></h2>
+            
+            <div class="video-container">
+                <video id="videoPlayer" controls style="width: 100%; max-width: 800px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <source src="" type="video/mp4">
+                    <source src="" type="video/webm">
+                    <source src="" type="video/ogg">
+                    Your browser does not support the video tag.
+                </video>
+                
+                <div class="video-controls" style="margin-top: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <button class="btn" onclick="playVideo()">▶️ Play</button>
+                    <button class="btn" onclick="pauseVideo()">⏸️ Pause</button>
+                    <button class="btn" onclick="stopVideo()">⏹️ Stop</button>
+                    <button class="btn btn-secondary" onclick="toggleFullscreen()">🔍 Fullscreen</button>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label style="color: #e0e6ed; font-weight: 500;">Volume:</label>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="100" style="width: 100px;" onchange="setVolume(this.value)">
+                        <span id="volumeDisplay" style="color: #ff6b9d; font-weight: 600;">100%</span>
+                    </div>
+                </div>
+                
+                <div class="video-info" style="margin-top: 15px; padding: 15px; background: rgba(20, 20, 40, 0.6); border-radius: 10px; border: 1px solid rgba(255, 107, 157, 0.2);">
+                    <h4 style="color: #ffffff; margin-bottom: 10px;">📹 Current Video Info</h4>
+                    <div id="videoInfo" style="color: #a0aec0; font-family: 'Courier New', monospace;">
+                        No video loaded. Upload a file or add a stream to get started!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Area -->
+        <div class="output-area" id="outputArea">
+🎵 Welcome to the Modular Media Streaming Suite! 🎵
+
+🌙 Dark Night Vibes • Musical Experience • Interactive Patterns • REAL VIDEO PLAYBACK
+
+This web application demonstrates structural design patterns with REAL video interactions:
+
+🎼 AVAILABLE FEATURES:
+1. Upload local files and manage playlists (Composite Pattern)
+2. Toggle decorators for features (Decorator Pattern)  
+3. Switch rendering engines (Bridge Pattern)
+4. Enable caching for remote content (Proxy Pattern)
+5. Handle multiple media sources (Adapter Pattern)
+6. Real video playback with HTML5 player
+
+🎵 Use the controls above to interact with the media streaming suite!
+═══════════════════════════════════════════════════════════════════════════════
+
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let playlist = [];
+        let currentRenderer = 'software';
+        let cacheEnabled = false;
+        let decorators = {
+            subtitles: false,
+            equalizer: false,
+            watermark: false
+        };
+        let isPlaying = false;
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                addToPlaylist('Local File', file.name, file);
+                // If it's a video file, load it in the player
+                if (file.type.startsWith('video/')) {
+                    loadVideoFile(file);
+                }
+            });
+        }
+
+        function loadVideoFile(file) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoInfo = document.getElementById('videoInfo');
+            
+            const url = URL.createObjectURL(file);
+            videoPlayer.src = url;
+            
+            videoInfo.innerHTML = `
+                📁 File: ${file.name}<br>
+                📊 Size: ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                🎬 Type: ${file.type}<br>
+                🔗 Source: Local File
+            `;
+            
+            logOutput(`🎬 Loaded video: ${file.name}`);
+            logOutput(`📊 File size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+        }
+
+        function loadVideoURL(url, type) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoInfo = document.getElementById('videoInfo');
+            
+            // Clear previous sources
+            videoPlayer.innerHTML = '';
+            
+            // Add new source
+            const source = document.createElement('source');
+            source.src = url;
+            source.type = 'video/mp4';
+            videoPlayer.appendChild(source);
+            
+            // Set video source and load
+            videoPlayer.src = url;
+            videoPlayer.load();
+            
+            videoInfo.innerHTML = `
+                🌐 URL: ${url}<br>
+                🎬 Type: ${type}<br>
+                🔗 Source: ${type}<br>
+                📊 Status: Loading...
+            `;
+            
+            logOutput(`🎬 Loading ${type}: ${url}`);
+            
+            // Add event listeners for video events
+            videoPlayer.addEventListener('loadeddata', function() {
+                videoInfo.innerHTML = `
+                    🌐 URL: ${url}<br>
+                    🎬 Type: ${type}<br>
+                    🔗 Source: ${type}<br>
+                    📊 Status: ✅ Ready to play<br>
+                    ⏱️ Duration: ${videoPlayer.duration.toFixed(2)}s
+                `;
+                logOutput(`✅ Video loaded successfully! Duration: ${videoPlayer.duration.toFixed(2)}s`);
+            });
+            
+            videoPlayer.addEventListener('error', function(e) {
+                videoInfo.innerHTML = `
+                    🌐 URL: ${url}<br>
+                    🎬 Type: ${type}<br>
+                    🔗 Source: ${type}<br>
+                    📊 Status: ❌ Error loading video
+                `;
+                logOutput(`❌ Error loading video: ${e.message || 'Unknown error'}`);
+            });
+        }
+
+        function addToPlaylist(type, name, file = null) {
+            const item = {
+                id: Date.now(),
+                type: type,
+                name: name,
+                file: file,
+                timestamp: new Date().toLocaleTimeString()
+            };
+            
+            playlist.push(item);
+            updatePlaylistDisplay();
+            logOutput(`✅ Added to playlist: ${type} - ${name}`);
+        }
+
+        function updatePlaylistDisplay() {
+            const container = document.getElementById('playlistItems');
+            container.innerHTML = '';
+            
+            playlist.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'playlist-item';
+                itemDiv.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">${getFileIcon(item.type)}</span>
+                        <div>
+                            <div><strong>${item.name}</strong></div>
+                            <div style="font-size: 0.8rem; color: #666;">${item.type} • ${item.timestamp}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn" onclick="playItem(${index})" style="padding: 5px 10px; font-size: 0.8rem;">▶️</button>
+                        <button class="btn btn-danger" onclick="removeFromPlaylist(${index})" style="padding: 5px 10px; font-size: 0.8rem;">🗑️</button>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        function getFileIcon(type) {
+            const icons = {
+                'Local File': '📁',
+                'HLS Stream': '🌐',
+                'Remote API': '🔗'
+            };
+            return icons[type] || '📄';
+        }
+
+        function removeFromPlaylist(index) {
+            const item = playlist[index];
+            playlist.splice(index, 1);
+            updatePlaylistDisplay();
+            logOutput(`🗑️ Removed from playlist: ${item.name}`);
+        }
+
+        function playItem(index) {
+            const item = playlist[index];
+            logOutput(`▶️ Playing: ${item.name}`);
+            
+            // If it's a video file, play it in the video player
+            if (item.file && item.file.type.startsWith('video/')) {
+                loadVideoFile(item.file);
+                playVideo();
+            } else if (item.type === 'HLS Stream' || item.type === 'Remote API') {
+                loadVideoURL(item.name, item.type);
+                playVideo();
+            } else {
+                simulatePlayback(item);
+            }
+        }
+
+        // Video Player Controls
+        function playVideo() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            if (videoPlayer.src) {
+                videoPlayer.play();
+                logOutput('🎬 Video playback started');
+                
+                // Apply decorators to video
+                if (decorators.subtitles) logOutput('  📝 Subtitles applied to video');
+                if (decorators.equalizer) logOutput('  🎛️ Audio equalizer applied to video');
+                if (decorators.watermark) logOutput('  🏷️ Watermark applied to video');
+                
+                logOutput(`  🌉 Using ${currentRenderer} rendering for video`);
+            } else {
+                logOutput('⚠️ No video loaded. Upload a file or add a stream first.');
+            }
+        }
+
+        function pauseVideo() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.pause();
+            logOutput('⏸️ Video paused');
+        }
+
+        function stopVideo() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0;
+            logOutput('⏹️ Video stopped');
+        }
+
+        function toggleFullscreen() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            if (videoPlayer.requestFullscreen) {
+                videoPlayer.requestFullscreen();
+                logOutput('🔍 Video fullscreen mode');
+            }
+        }
+
+        function setVolume(value) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const volumeDisplay = document.getElementById('volumeDisplay');
+            videoPlayer.volume = value / 100;
+            volumeDisplay.textContent = value + '%';
+            logOutput(`🔊 Volume set to ${value}%`);
+        }
+
+        function loadSampleVideo() {
+            // Use a reliable sample video that works
+            const sampleUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+            loadVideoURL(sampleUrl, 'Sample Video');
+            addToPlaylist('Sample Video', 'Big Buck Bunny - Sample Video');
+            logOutput('🎬 Sample video loaded! Click play to start watching.');
+        }
+
+        function simulatePlayback(item) {
+            isPlaying = true;
+            const progressFill = document.getElementById('progressFill');
+            let progress = 0;
+            
+            logOutput(`🎬 Starting playback of ${item.name}`);
+            
+            // Apply decorators
+            if (decorators.subtitles) logOutput('  📝 Applying subtitles...');
+            if (decorators.equalizer) logOutput('  🎛️ Applying audio equalizer...');
+            if (decorators.watermark) logOutput('  🏷️ Applying watermark...');
+            
+            // Show rendering engine
+            logOutput(`  🌉 Using ${currentRenderer} rendering engine`);
+            
+            // Simulate progress
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    isPlaying = false;
+                    logOutput(`✅ Completed: ${item.name}`);
+                }
+                progressFill.style.width = progress + '%';
+            }, 200);
+        }
+
+        function playPlaylist() {
+            if (playlist.length === 0) {
+                logOutput('⚠️ Playlist is empty! Add some files first.');
+                return;
+            }
+            
+            logOutput('🎵 COMPOSITE PATTERN DEMO - Playing Playlist:');
+            logOutput('═'.repeat(50));
+            
+            playlist.forEach((item, index) => {
+                setTimeout(() => {
+                    logOutput(`Playing item ${index + 1}: ${item.name}`);
+                    simulatePlayback(item);
+                }, index * 3000);
+            });
+        }
+
+        function pausePlayback() {
+            isPlaying = false;
+            logOutput('⏸️ Playback paused');
+        }
+
+        function stopPlayback() {
+            isPlaying = false;
+            document.getElementById('progressFill').style.width = '0%';
+            logOutput('⏹️ Playback stopped');
+        }
+
+        function toggleDecorator(type) {
+            decorators[type] = !decorators[type];
+            const status = decorators[type] ? '✅ Enabled' : '❌ Disabled';
+            logOutput(`🎨 DECORATOR PATTERN - ${type.charAt(0).toUpperCase() + type.slice(1)}: ${status}`);
+        }
+
+        function setRenderer(type) {
+            currentRenderer = type;
+            logOutput(`🌉 BRIDGE PATTERN - Renderer set to: ${type}`);
+        }
+
+        function switchRenderer() {
+            currentRenderer = currentRenderer === 'hardware' ? 'software' : 'hardware';
+            logOutput(`🔄 BRIDGE PATTERN - Switched to: ${currentRenderer} rendering`);
+        }
+
+        function enableCaching() {
+            cacheEnabled = true;
+            logOutput('🔄 PROXY PATTERN - Caching enabled');
+        }
+
+        function disableCaching() {
+            cacheEnabled = false;
+            logOutput('🔄 PROXY PATTERN - Caching disabled');
+        }
+
+        function demoCaching() {
+            logOutput('📡 PROXY PATTERN - Caching Demo:');
+            logOutput('═'.repeat(30));
+            
+            if (cacheEnabled) {
+                logOutput('First access (Cache Miss):');
+                logOutput('  🔄 Loading from remote server...');
+                logOutput('  📥 Caching content locally...');
+                logOutput('  ✅ Content loaded and cached');
+                logOutput('');
+                logOutput('Second access (Cache Hit):');
+                logOutput('  ⚡ Serving from cache...');
+                logOutput('  🚀 Instant access - no network delay!');
+            } else {
+                logOutput('Caching disabled - fetching fresh content:');
+                logOutput('  🔄 Loading from remote server...');
+                logOutput('  ⏱️ Network delay experienced');
+            }
+            logOutput('═'.repeat(30));
+        }
+
+        function addHLSStream() {
+            const url = prompt('Enter HLS stream URL:', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4');
+            if (url) {
+                addToPlaylist('HLS Stream', url);
+                loadVideoURL(url, 'HLS Stream');
+            }
+        }
+
+        function addRemoteAPI() {
+            const api = prompt('Enter Remote API URL:', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4');
+            if (api) {
+                addToPlaylist('Remote API', api);
+                loadVideoURL(api, 'Remote API');
+            }
+        }
+
+        function downloadPlaylist() {
+            if (playlist.length === 0) {
+                logOutput('⚠️ No playlist to download');
+                return;
+            }
+            
+            const playlistData = {
+                name: 'My Playlist',
+                items: playlist.map(item => ({
+                    type: item.type,
+                    name: item.name,
+                    timestamp: item.timestamp
+                })),
+                created: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(playlistData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'playlist.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            logOutput('💾 Playlist downloaded as playlist.json');
+        }
+
+        // Demo scenarios
+        function runFullDemo() {
+            clearOutput();
+            logOutput('🎥 FULL DEMO - All Patterns in Action:');
+            logOutput('═'.repeat(50));
+            
+            setTimeout(() => {
+                logOutput('1️⃣ ADAPTER PATTERN - Multiple Media Sources:');
+                logOutput('🔌 LocalFileSource: movie.mp4');
+                logOutput('🔌 HLSStreamSource: https://example.com/stream.m3u8');
+                logOutput('🔌 RemoteAPISource: api://media-service/video/123');
+                logOutput('✅ All sources use unified MediaSource interface');
+            }, 1000);
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('2️⃣ DECORATOR PATTERN - Feature Stacking:');
+                logOutput('🎨 Basic Player → Subtitle Decorator → Equalizer Decorator → Watermark Decorator');
+                logOutput('✅ Features can be combined dynamically at runtime');
+            }, 3000);
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('3️⃣ COMPOSITE PATTERN - Hierarchical Playlists:');
+                logOutput('📁 Main Playlist');
+                logOutput('  ├── 🎬 Movie Item');
+                logOutput('  ├── 📺 Show Item');
+                logOutput('  └── 📁 Music Sub-Playlist');
+                logOutput('      └── 🎵 Music Video Item');
+                logOutput('✅ Uniform treatment of items and collections');
+            }, 5000);
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('4️⃣ BRIDGE PATTERN - Rendering Strategies:');
+                logOutput('🌉 MediaRenderer abstraction ↔ RenderingEngine implementation');
+                logOutput('🖥️ Hardware Rendering Engine');
+                logOutput('💻 Software Rendering Engine');
+                logOutput('✅ Runtime switching between implementations');
+            }, 7000);
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('5️⃣ PROXY PATTERN - Transparent Caching:');
+                logOutput('🔄 CachedMediaStream proxy ↔ RealMediaStream subject');
+                logOutput('⚡ Cache hits provide instant access');
+                logOutput('🌐 Cache misses trigger remote loading');
+                logOutput('✅ Transparent caching without client changes');
+            }, 9000);
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('🎉 All structural patterns working together!');
+                logOutput('═'.repeat(50));
+            }, 11000);
+        }
+
+        function runCompositeDemo() {
+            clearOutput();
+            logOutput('📁 COMPOSITE PATTERN DEMO:');
+            logOutput('═'.repeat(30));
+            logOutput('Adding items to demonstrate hierarchical structure...');
+            
+            addToPlaylist('Local File', 'movie.mp4');
+            addToPlaylist('HLS Stream', 'https://example.com/stream.m3u8');
+            addToPlaylist('Remote API', 'api://media-service/video/123');
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('🎵 Playing composite playlist:');
+                playPlaylist();
+            }, 2000);
+        }
+
+        function runDecoratorDemo() {
+            clearOutput();
+            logOutput('🎨 DECORATOR PATTERN DEMO:');
+            logOutput('═'.repeat(30));
+            logOutput('Demonstrating dynamic feature composition...');
+            
+            setTimeout(() => {
+                document.getElementById('subtitles').checked = true;
+                toggleDecorator('subtitles');
+            }, 1000);
+            
+            setTimeout(() => {
+                document.getElementById('equalizer').checked = true;
+                toggleDecorator('equalizer');
+            }, 2000);
+            
+            setTimeout(() => {
+                document.getElementById('watermark').checked = true;
+                toggleDecorator('watermark');
+            }, 3000);
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('🎬 Playing with all decorators applied:');
+                if (playlist.length > 0) {
+                    playItem(0);
+                } else {
+                    logOutput('⚠️ Add a file to playlist first to see decorators in action');
+                }
+            }, 4000);
+        }
+
+        function runBridgeDemo() {
+            clearOutput();
+            logOutput('🌉 BRIDGE PATTERN DEMO:');
+            logOutput('═'.repeat(30));
+            logOutput('Demonstrating runtime rendering engine switching...');
+            
+            setTimeout(() => {
+                setRenderer('hardware');
+            }, 1000);
+            
+            setTimeout(() => {
+                switchRenderer();
+            }, 2000);
+            
+            setTimeout(() => {
+                switchRenderer();
+            }, 3000);
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('✅ Bridge pattern allows runtime strategy changes');
+            }, 4000);
+        }
+
+        function runProxyDemo() {
+            clearOutput();
+            logOutput('🔄 PROXY PATTERN DEMO:');
+            logOutput('═'.repeat(30));
+            logOutput('Demonstrating transparent caching behavior...');
+            
+            setTimeout(() => {
+                enableCaching();
+            }, 1000);
+            
+            setTimeout(() => {
+                demoCaching();
+            }, 2000);
+            
+            setTimeout(() => {
+                disableCaching();
+            }, 5000);
+            
+            setTimeout(() => {
+                demoCaching();
+            }, 6000);
+        }
+
+        function runAdapterDemo() {
+            clearOutput();
+            logOutput('🔌 ADAPTER PATTERN DEMO:');
+            logOutput('═'.repeat(30));
+            logOutput('Demonstrating unified interface for different sources...');
+            
+            setTimeout(() => {
+                // Load sample video
+                loadVideoURL('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'Sample Video');
+                addToPlaylist('Local File', 'Big Buck Bunny');
+            }, 1000);
+            
+            setTimeout(() => {
+                addToPlaylist('HLS Stream', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4');
+            }, 2000);
+            
+            setTimeout(() => {
+                addToPlaylist('Remote API', 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4');
+            }, 3000);
+            
+            setTimeout(() => {
+                logOutput('');
+                logOutput('✅ All sources use the same MediaSource interface');
+                logOutput('🔌 Adapter pattern provides unified access');
+                logOutput('🎬 Try clicking play on any item to see real video playback!');
+            }, 4000);
+        }
+
+        function logOutput(message) {
+            const outputArea = document.getElementById('outputArea');
+            outputArea.textContent += message + '\n';
+            outputArea.scrollTop = outputArea.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('outputArea').textContent = '';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            logOutput('🎬 Modular Media Streaming Suite initialized!');
+            logOutput('Ready for interactive pattern demonstrations.');
+        });
+    </script>
+</body>
+</html>
